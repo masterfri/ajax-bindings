@@ -1,0 +1,871 @@
+<html>
+	<head>
+		<script src="../vendor/jquery/jquery.min.js"></script>
+		<script src="../vendor/bootstrap/js/bootstrap.js"></script>
+		<script src="../ajax-bindings.js"></script>
+		<link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../vendor/bootstrap/css/bootstrap-theme.min.css">
+		<style>
+			.loading-css, .loading-disable {opacity: 0.3;}
+			.modal .loading-css {height: 100px; background: url(spinner-big.gif) no-repeat center center;}
+			.popover .loading-css {height: 100px; background: url(spinner-big.gif) no-repeat center center;}
+			.modal-loading .modal-body { background-color: red; }
+			.block-ui-cover {background: rgba(0,0,0, 0.4); border: 1px solid #aaa; text-align: center; }
+			.block-ui-indicator {position: fixed; z-index: 9999; top: 20px; right: 20px; border: 2px solid #000; width: 100px; padding: 5px 20px; background: #fff;}
+			.block-ui-cover .spinner {background: #fff; border: 1px solid #aaa; border-top: none; padding: 10px; display: inline-block; border-radius: 0 0 5px 5px; }
+			.footer {text-align: center; padding: 30px;}
+		</style>
+		<script>
+			$(function() {
+				$('#b1').click(function() {
+					$('#d1').ajaxUpdate({
+						'blockui':'disable'
+					});
+					return false;
+				});
+				
+				$('#b20').click(function() {
+					$(document.body).blockUI();
+					setTimeout(function() { $(document.body).unblockUI(); }, 3000);
+					return false;
+				});
+				
+				$('#b21').click(function() {
+					$(document.body).blockUI({'mode': 'indicator'});
+					return false;
+				});
+				
+				$('#b22').click(function() {
+					$(document.body).unblockUI();
+					return false;
+				});
+				
+				$('#b3').click(function() {
+					var p = $(this).parent();
+					p.blockUI({'mode': 'cover', 'spinner': '<span class="spinner">Loading...</span>'});
+					setTimeout(function() { p.unblockUI(); }, 3000);
+					return false;
+				});
+				
+				$('#t1').ajaxUpdate('ajax-bindings.php?r=4');
+				
+				$.ajaxBindings.on('submitted', function(e, data) {
+					alert('Remote server says: ' + data.message);
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Ajax-bindings <small>1.0</small></h1>
+			<p>
+				Ajax-bindings is a jQuery plugin that allows organize performing AJAX-request with minimal efforts.
+				You can make requests without writting of additional code just by adding special HTML attributes to 
+				AJAX-depended elements. Plugin also has integration with bootstrap, so you can bind AJAX requests to a modal dialog or
+				to a popover.
+			</p>
+			<h2>Ajax Update</h2>
+			<p>
+				Usage: <code>$(selector).ajaxUpdate(options);</code> or <code>data-ajax-update="selector"</code>
+			</p>
+			<p>
+				Updates particular HTML element with content of AJAX request response.
+			</p>
+			<table class="table table-bordered">
+				<tr>
+					<th width="20%">
+						Option
+					</th>
+					<th width="20%">
+						HTML 
+					</th>
+					<th width="20%">
+						Default
+					</th>
+					<th>
+						Description
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<b>ondone</b>
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						<code>function () {}</code>
+					</td>
+					<td>
+						Funtion that will be called at the end of successfull request.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>onerror</b>
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						<code>function () {}</code>
+					</td>
+					<td>
+						Funtion that will be called at the end of failed request.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>blockui</b>
+					</td>
+					<td>
+						data-blockui
+					</td>
+					<td>
+						<code>'auto'</code>
+					</td>
+					<td>
+						Blocking UI options.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>url</b>
+					</td>
+					<td>
+						data-url
+					</td>
+					<td>
+						<code>location.href</code>
+					</td>
+					<td>
+						Request URL.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>source</b>
+					</td>
+					<td>
+						data-source
+					</td>
+					<td>
+						<code>'#element-id'</code> or <code>'[data-marker=ajax-body]'</code>
+					</td>
+					<td>
+						Select element from response to replace updated element with itself instead of using whole content of response.
+					</td>
+				</tr>
+			</table>
+			<h3>Example #1 <small>using API</small></h3>
+<pre>&lt;script type=&quot;text/javascript&quot;&gt;
+	$(function() {
+		$('#b1').click(function() {
+			$('#d1').ajaxUpdate({
+				'blockui':'disable'
+			});
+			return false;
+		});
+	});
+&lt;/script&gt;
+
+&lt;div data-url=&quot;ajax-bindings.php?r=1&quot; id=&quot;d1&quot;&gt;
+	&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
+	incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
+	exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat...&lt;/p&gt;
+	&lt;button id=&quot;b1&quot; class=&quot;btn btn-default&quot;&gt;Update&lt;/button&gt;
+&lt;/div&gt;</pre>
+			<h3>Demo</h3>
+			<div data-url="ajax-bindings.php?r=1" id="d1">
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat...</p>
+				<button id="b1" class="btn btn-default">Update</button>
+			</div>
+			<h3>Example #2 <small>using HTML attributes</small></h3>
+<pre>&lt;div data-url=&quot;ajax-bindings.php?r=1&quot; id=&quot;d2&quot;&gt;
+	&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
+	incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
+	exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat...&lt;/p&gt;
+	&lt;button class=&quot;btn btn-default&quot; data-ajax-update=&quot;#d2&quot;&gt;Update&lt;/button&gt;
+&lt;/div&gt;</pre>
+			<h3>Demo</h3>
+			<div data-url="ajax-bindings.php?r=1" id="d2">
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat...</p>
+				<button class="btn btn-default" data-ajax-update="#d2">Update</button>
+			</div>
+			
+			
+			<h2>Ajax Requests</h2>
+			<p>
+				Usage: <code>$(selector).ajaxRequest(options);</code> or <code>data-raise="ajax-request"</code>
+			</p>
+			<p>
+				Performs AJAX request. If type of response is HTML, contextual element will be replaced with responce content. If type of response is JSON, event specified as <code>trigger</code> will be fired on body.
+			</p>
+			<table class="table table-bordered">
+				<tr>
+					<th width="20%">
+						Option
+					</th>
+					<th width="20%">
+						HTML 
+					</th>
+					<th width="20%">
+						Default
+					</th>
+					<th>
+						Description
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<b>ondone</b>
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						<code>function () {}</code>
+					</td>
+					<td>
+						Funtion that will be called at the end of successfull request.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>onerror</b>
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						<code>function () {}</code>
+					</td>
+					<td>
+						Funtion that will be called at the end of failed request.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>blockui</b>
+					</td>
+					<td>
+						data-blockui
+					</td>
+					<td>
+						<code>'auto'</code>
+					</td>
+					<td>
+						Blocking UI options.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>url</b>
+					</td>
+					<td>
+						data-url
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						Request URL. Can be also withdrawed from attributes <code>href</code> or <code>action</code> of contextual elememt.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>confirmation</b>
+					</td>
+					<td>
+						data-confirmation
+					</td>
+					<td>
+						<code>false</code>
+					</td>
+					<td>
+						Ask for confirmation before performing AJAX request.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>source</b>
+					</td>
+					<td>
+						data-source
+					</td>
+					<td>
+						<code>'#element-id'</code> or <code>'[data-marker=ajax-body]'</code>
+					</td>
+					<td>
+						Select element from response to replace updated element with itself instead of using whole content of response.
+					</td>
+				</tr>
+			</table>
+			<h3>Example #1 <small>replacing itself</small></h3>
+<pre>&lt;button class=&quot;btn btn-default&quot; data-url=&quot;ajax-bindings.php?r=5&quot; data-raise=&quot;ajax-request&quot; data-source=&quot;button&quot;&gt;
+	&lt;span class=&quot;glyphicon glyphicon-eye-open&quot;&gt;&lt;/span&gt; Watch
+&lt;/button&gt;</pre>
+			<h3>Demo</h3>
+			<button class="btn btn-default" data-url="ajax-bindings.php?r=5" data-raise="ajax-request" data-source="button"><span class="glyphicon glyphicon-eye-open"></span> Watch</button>
+			<h3>Example #2 <small>replacing custom element</small></h3>
+<pre>&lt;div class=&quot;row&quot;&gt;
+	&lt;div class=&quot;col-xs-1&quot;&gt;
+		&lt;button class=&quot;btn btn-default&quot; data-url=&quot;ajax-bindings.php?r=7&quot; data-raise=&quot;ajax-request&quot; data-destination=&quot;.s1&quot;&gt;
+			Update
+		&lt;/button&gt;
+	&lt;/div&gt;
+	&lt;div class=&quot;col-xs-11&quot;&gt;
+		&lt;span class=&quot;s1&quot;&gt;Lorem ipsum dolor sit amet...&lt;/span&gt;
+	&lt;/div&gt;
+&lt;/div&gt;</pre>
+			<h3>Demo</h3>
+			<div class="row">
+				<div class="col-xs-1">
+					<button class="btn btn-default" data-url="ajax-bindings.php?r=7" data-raise="ajax-request" data-destination=".s1">Update</button>
+				</div>
+				<div class="col-xs-11">
+					<span class="s1">Lorem ipsum dolor sit amet...</span>
+				</div>
+			</div>
+			<h3>Example #3 <small>using trigger</small></h3>
+<pre>&lt;?php 
+// Server
+echo json_encode(array(
+	'result' =&gt; 'ok',
+	'trigger' =&gt; 'submitted',
+	'message' =&gt; sprintf('Server time is %s', date('H:i:s')),
+));
+exit;
+
+// Client
+&lt;script type=&quot;text/javascript&quot;&gt;
+	$(function() {
+		$.ajaxBindings.on('submitted', function(e, data) {
+			alert('Remote server says: ' + data.message);
+		});
+	});
+&lt;script&gt;
+
+&lt;button class=&quot;btn btn-default&quot; data-url=&quot;ajax-bindings.php?r=8&quot; data-raise=&quot;ajax-request&quot;&gt;
+	Submit
+&lt;/button&gt;</pre>
+			<h3>Demo</h3>
+			<button class="btn btn-default" data-url="ajax-bindings.php?r=8" data-raise="ajax-request">Submit</button>
+			
+			<h2>AJAX modal dialog and popover</h2>
+			<p>
+				Usage: <code>$(selector).ajaxModal(options);</code> or <code>data-raise="ajax-modal"</code>
+			</p>
+			<p>
+				Opens bootstrap modal dialog and load remote data into it.
+			</p>
+			
+			<table class="table table-bordered">
+				<tr>
+					<th width="20%">
+						Option
+					</th>
+					<th width="20%">
+						HTML 
+					</th>
+					<th width="20%">
+						Default
+					</th>
+					<th>
+						Description
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<b>ondone</b>
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						<code>function () {}</code>
+					</td>
+					<td>
+						Funtion that will be called at the end of successfull request.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>onerror</b>
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						<code>function () {}</code>
+					</td>
+					<td>
+						Funtion that will be called at the end of failed request.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>blockui</b>
+					</td>
+					<td>
+						data-blockui
+					</td>
+					<td>
+						<code>'auto'</code>
+					</td>
+					<td>
+						Blocking UI options.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>url</b>
+					</td>
+					<td>
+						data-url
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						Request URL. Can be also withdrawed from attributes <code>href</code> or <code>action</code> of contextual elememt.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>title</b>
+					</td>
+					<td>
+						data-title
+					</td>
+					<td>
+						<code>'...'</code>
+					</td>
+					<td>
+						Initial modal dialog title.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>loadingCssClass</b>
+					</td>
+					<td>
+						data-loading-css-class
+					</td>
+					<td>
+						<code>'modal-loading'</code>
+					</td>
+					<td>
+						CSS class that will be assigned to modal dialog during requesting remote data.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>loadedCssClass</b>
+					</td>
+					<td>
+						data-loaded-css-class
+					</td>
+					<td>
+						<code>'modal-loaded'</code>
+					</td>
+					<td>
+						CSS class that will be assigned to modal dialog after remote data is fetched.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>source</b>
+					</td>
+					<td>
+						data-source
+					</td>
+					<td>
+						<code>'[data-marker=ajax-body]'</code>
+					</td>
+					<td>
+						Select element from response to put in into body of modal dialog instead of using whole content of response.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>titleSource</b>
+					</td>
+					<td>
+						data-title-source
+					</td>
+					<td>
+						<code>'[data-marker=ajax-title]'</code>
+					</td>
+					<td>
+						Select element from response to use its content as title of modal dialog.
+					</td>
+				</tr>
+			</table>
+			
+			<p>
+				Usage: <code>$(selector).ajaxPopover(options);</code> or <code>data-raise="ajax-popover"</code>
+			</p>
+			<p>
+				Creates bootstrap popover and load remote data into it.
+			</p>
+			<table class="table table-bordered">
+				<tr>
+					<th width="20%">
+						Option
+					</th>
+					<th width="20%">
+						HTML 
+					</th>
+					<th width="20%">
+						Default
+					</th>
+					<th>
+						Description
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<b>ondone</b>
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						<code>function () {}</code>
+					</td>
+					<td>
+						Funtion that will be called at the end of successfull request.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>onerror</b>
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						<code>function () {}</code>
+					</td>
+					<td>
+						Funtion that will be called at the end of failed request.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>blockui</b>
+					</td>
+					<td>
+						data-blockui
+					</td>
+					<td>
+						<code>'auto'</code>
+					</td>
+					<td>
+						Blocking UI options.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>url</b>
+					</td>
+					<td>
+						data-url
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						Request URL. Can be also withdrawed from attributes <code>href</code> or <code>action</code> of contextual elememt.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>popoverOptions</b>
+					</td>
+					<td>
+						<i>none</i>
+					</td>
+					<td>
+						<code>{'html': true}</code>
+					</td>
+					<td>
+						Popover configuration.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>title</b>
+					</td>
+					<td>
+						data-title
+					</td>
+					<td>
+						<code>'...'</code>
+					</td>
+					<td>
+						Initial popover title.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>loadingCssClass</b>
+					</td>
+					<td>
+						data-loading-css-class
+					</td>
+					<td>
+						<code>'popover-loading'</code>
+					</td>
+					<td>
+						CSS class that will be assigned to modal dialog during requesting remote data.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>loadedCssClass</b>
+					</td>
+					<td>
+						data-loaded-css-class
+					</td>
+					<td>
+						<code>'popover-loaded'</code>
+					</td>
+					<td>
+						CSS class that will be assigned to modal dialog after remote data is fetched.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>source</b>
+					</td>
+					<td>
+						data-source
+					</td>
+					<td>
+						<code>'[data-marker=ajax-body]'</code>
+					</td>
+					<td>
+						Select element from response to put in into body of modal dialog instead of using whole content of response.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>titleSource</b>
+					</td>
+					<td>
+						data-title-source
+					</td>
+					<td>
+						<code>'[data-marker=ajax-title]'</code>
+					</td>
+					<td>
+						Select element from response to use its content as title of modal dialog.
+					</td>
+				</tr>
+			</table>
+			<h3>Example #1 <small>fetching remote data</small></h3>
+<pre>&lt;a href=&quot;ajax-bindings.php?r=2&quot; class=&quot;btn btn-default&quot; data-raise=&quot;ajax-modal&quot; data-title=&quot;Modal demo&quot;&gt;
+	Open modal
+&lt;/a&gt;
+&lt;a href=&quot;ajax-bindings.php?r=2&quot; class=&quot;btn btn-default&quot; data-raise=&quot;ajax-popover&quot; data-title=&quot;Popover demo&quot;&gt;
+	Open popover
+&lt;/a&gt;</pre>
+			<h3>Demo</h3>
+			<a href="ajax-bindings.php?r=2" class="btn btn-default" data-raise="ajax-modal" data-title="Modal demo">Open modal</a>
+			<a href="ajax-bindings.php?r=2" class="btn btn-default" data-raise="ajax-popover" data-title="Popover demo">Open popover</a>
+			<h3>Example #2 <small>handling from submission</small></h3>
+<pre>&lt;p&gt;
+	&lt;a href=&quot;ajax-bindings.php?r=3&quot; class=&quot;btn btn-default&quot; data-raise=&quot;ajax-modal&quot; data-title=&quot;Modal demo&quot;&gt;Add email (modal)&lt;/a&gt;
+	&lt;a href=&quot;ajax-bindings.php?r=3&quot; class=&quot;btn btn-default&quot; data-raise=&quot;ajax-popover&quot; data-title=&quot;Popover demo&quot;&gt;Add email (popover)&lt;/a&gt;
+&lt;/p&gt;
+&lt;table class=&quot;table table-condenced table-bordered&quot; id=&quot;t1&quot; data-blockui=&quot;cover&quot;&gt;
+	&lt;tr&gt;
+		&lt;th&gt;Email&lt;/th&gt;
+		&lt;th style=&quot;width:80px;&quot;&gt;&lt;/th&gt;
+	&lt;/tr&gt;
+	&lt;tr&gt;
+		&lt;td colspan=&quot;2&quot;&gt;Data is not loaded yet...&lt;/td&gt;
+	&lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;form action=&quot;ajax-bindings.php?r=3&quot; method=&quot;post&quot; class=&quot;form-horizontal&quot; data-raise=&quot;ajax-request&quot;&gt;
+	&lt;div class=&quot;form-group&quot;&gt;
+		&lt;label class=&quot;col-sm-4 control-label&quot; for=&quot;email&quot;&gt;Email &lt;span class=&quot;required&quot;&gt;*&lt;/span&gt;&lt;/label&gt;
+		&lt;div class=&quot;col-sm-7&quot;&gt;&lt;input class=&quot;form-control&quot; name=&quot;email&quot; type=&quot;text&quot;&gt;&lt;/div&gt;
+	&lt;/div&gt;
+	&lt;div class=&quot;form-group&quot;&gt;
+		&lt;div class=&quot;col-sm-offset-4 col-sm-10&quot;&gt;
+			&lt;input type=&quot;submit&quot; name=&quot;submit&quot; class=&quot;btn btn-primary&quot; value=&quot;Submit&quot;&gt;
+		&lt;/div&gt;
+	&lt;/div&gt;
+&lt;/form&gt;</pre>
+			<h3>Demo</h3>
+			<p>
+				<a href="ajax-bindings.php?r=3" class="btn btn-default" data-raise="ajax-modal" data-title="Modal demo">Add email (modal)</a>
+				<a href="ajax-bindings.php?r=3" class="btn btn-default" data-raise="ajax-popover" data-title="Popover demo">Add email (popover)</a>
+			</p>
+			<table class="table table-condenced table-bordered" id="t1" data-blockui="cover">
+				<tr>
+					<th>Email</th>
+					<th style="width:80px;"></th>
+				</tr>
+				<tr>
+					<td colspan="2">Data is not loaded yet...</td>
+				</tr>
+			</table>
+			
+			<h2>Blocking UI</h2>
+			<p>
+				Usage: <code>$(selector).blockUI(options);</code> and <code>$(selector).unblockUI();</code>
+			</p>
+			<p>Makes user know that particular element of user interface is locked.</p>
+			<table class="table table-bordered">
+				<tr>
+					<th width="20%">
+						Option
+					</th>
+					<th width="20%">
+						Default
+					</th>
+					<th>
+						Description
+					</th>
+				</tr>
+				<tr>
+					<td>
+						<b>cssClass</b>
+					</td>
+					<td>
+						<code>'loading'</code>
+					</td>
+					<td>
+						CSS class that will be assigned to blocked element.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>coverCssClass</b>
+					</td>
+					<td>
+						<code>'block-ui-cover'</code>
+					</td>
+					<td>
+						CSS class for covering overlay.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>indicatorCssClass</b>
+					</td>
+					<td>
+						<code>'block-ui-indicator'</code>
+					</td>
+					<td>
+						CSS class for indicator overlay.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>spinner</b>
+					</td>
+					<td>
+						<code>'Loading...'</code>
+					</td>
+					<td>
+						HTML markup pasted into cover or indicator.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>mode</b>
+					</td>
+					<td>
+						<code>'auto'</code>
+					</td>
+					<td>
+						Blocking mode. It can be <code>'auto'</code>, <code>'css'</code>, <code>'disable'</code>, <code>'cover'</code> or <code>'indicator'</code>.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>animateCover</b>
+					</td>
+					<td>
+						<code>300</code>
+					</td>
+					<td>
+						Animation duration for showing and hidding cover.
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>animateIndicator</b>
+					</td>
+					<td>
+						<code>300</code>
+					</td>
+					<td>
+						Animation duration for showing and hidding indicator.
+					</td>
+				</tr>
+			</table>
+			<h3>Example #1 <small>full set</small></h3>
+<pre>&lt;script type=&quot;text/javascript&quot;&gt;
+	$(function() {
+		$('#b20').click(function() {
+			$(document.body).blockUI();
+			setTimeout(function() { $(document.body).unblockUI(); }, 3000);
+			return false;
+		});
+		
+		$('#b21').click(function() {
+			$(document.body).blockUI({'mode': 'indicator'});
+			return false;
+		});
+		
+		$('#b22').click(function() {
+			$(document.body).unblockUI();
+			return false;
+		});
+	});
+&lt;/script&gt;
+		
+&lt;div class=&quot;row&quot;&gt;
+	&lt;div class=&quot;col-xs-2&quot;&gt;
+		&lt;button href=&quot;#&quot; id=&quot;b20&quot; class=&quot;btn btn-default&quot;&gt;Lock document body&lt;/button&gt;
+	&lt;/div&gt;
+	&lt;div class=&quot;col-xs-2&quot;&gt;
+		&lt;button href=&quot;#&quot; id=&quot;b21&quot; class=&quot;btn btn-default&quot;&gt;Show indicator&lt;/button&gt;
+	&lt;/div&gt;
+	&lt;div class=&quot;col-xs-2&quot;&gt;
+		&lt;button href=&quot;#&quot; id=&quot;b22&quot; class=&quot;btn btn-default&quot;&gt;Hide indicator&lt;/button&gt;
+	&lt;/div&gt;
+	&lt;div class=&quot;col-xs-6&quot;&gt;
+		&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat...&lt;/p&gt;
+		&lt;button href=&quot;#&quot; id=&quot;b3&quot; class=&quot;btn btn-default&quot;&gt;Div&lt;/button&gt;
+	&lt;/div&gt;
+&lt;/div&gt;
+</pre>
+			<h3>Demo</h3>
+			<div class="row">
+				<div class="col-xs-2">
+					<button href="#" id="b20" class="btn btn-default">Lock document body</button>
+				</div>
+				<div class="col-xs-2">
+					<button href="#" id="b21" class="btn btn-default">Show indicator</button>
+				</div>
+				<div class="col-xs-2">
+					<button href="#" id="b22" class="btn btn-default">Hide indicator</button>
+				</div>
+				<div class="col-xs-6">
+					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat...</p>
+					<button href="#" id="b3" class="btn btn-default">Div</button>
+				</div>
+			</div>
+			
+			<p class="footer">Designed by <a href="http://masterfri.org.ua/ru">masterfri</a>.</p>
+		</div>
+	</body>
+</html>
