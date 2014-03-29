@@ -2,7 +2,7 @@
 
 session_start();
 
-sleep(1);
+// sleep(1);
 
 if (isset($_GET['remove'])) {
 	$email = $_GET['remove'];
